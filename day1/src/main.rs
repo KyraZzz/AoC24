@@ -1,59 +1,63 @@
 use std::collections::HashMap;
+use std::fs::File;
 use std::io::{BufRead, BufReader};
 fn part1() -> i32 {
-    let f = std::fs::File::open("/Users/Kyra_ZHOU/24AoC/AoC24/day1/test/part1.txt").unwrap();
-    let r = BufReader::new(f);
-    let arrays = r
+    let f: File = std::fs::File::open("/Users/Kyra_ZHOU/24AoC/AoC24/day1/test/part1.txt").unwrap();
+    let r: BufReader<File> = BufReader::new(f);
+
+    let (mut firsts, mut seconds) = r
         .lines()
         .map(|line| {
-            line.unwrap()
-                .split("   ")
-                .map(|word| word.parse::<i32>().unwrap())
-                .collect::<Vec<_>>()
+            let vec = line
+                .unwrap()
+                .split_whitespace()
+                .map(|s| s.parse::<u32>().unwrap())
+                .collect::<Vec<u32>>();
+            (
+                vec.get(0).unwrap().to_owned(),
+                vec.get(1).unwrap().to_owned(),
+            )
         })
-        .collect::<Vec<_>>();
-    let mut firsts = arrays.iter().map(|x| x.get(0).unwrap()).collect::<Vec<_>>();
-    firsts.sort();
-    let mut seconds = arrays.iter().map(|x| x.get(1).unwrap()).collect::<Vec<_>>();
-    seconds.sort();
+        .collect::<(Vec<u32>, Vec<u32>)>();
 
-    let mut res = 0;
-    for (first, second) in firsts.into_iter().zip(seconds.into_iter()) {
-        res += (second - first).abs();
-    }
+    firsts.sort_unstable();
+    seconds.sort_unstable();
+
+    let res: i32 = firsts
+        .into_iter()
+        .zip(seconds.into_iter())
+        .map(|(first, second)| (second as i32 - first as i32).abs())
+        .sum();
     res
 }
 
-fn part2() -> i32 {
+fn part2() -> u32 {
     let f = std::fs::File::open("/Users/Kyra_ZHOU/24AoC/AoC24/day1/test/part1.txt").unwrap();
     let r = BufReader::new(f);
-    let arrays = r
+
+    let (firsts, seconds) = r
         .lines()
         .map(|line| {
-            line.unwrap()
-                .split("   ")
-                .map(|word| word.parse::<i32>().unwrap())
-                .collect::<Vec<_>>()
+            let vec = line
+                .unwrap()
+                .split_whitespace()
+                .map(|s| s.parse::<u32>().unwrap())
+                .collect::<Vec<u32>>();
+            (
+                vec.get(0).unwrap().to_owned(),
+                vec.get(1).unwrap().to_owned(),
+            )
         })
-        .collect::<Vec<_>>();
-    let firsts = arrays
-        .iter()
-        .map(|x| x.get(0).unwrap().to_owned())
-        .collect::<Vec<i32>>();
-    let seconds = arrays
-        .iter()
-        .map(|x| x.get(1).unwrap().to_owned())
-        .collect::<Vec<i32>>();
+        .collect::<(Vec<u32>, Vec<u32>)>();
 
     let mut occurrences = HashMap::new();
-
     for num in seconds.into_iter() {
-        occurrences.insert(num, occurrences.get(&num).unwrap_or(&0) + 1);
+        occurrences.insert(num, occurrences.get(&num).copied().unwrap_or(0) + 1);
     }
-    let mut score = 0;
-    for num in firsts.into_iter() {
-        score += num * occurrences.get(&num).unwrap_or(&0);
-    }
+    let score = firsts
+        .into_iter()
+        .map(|num| num * occurrences.get(&num).copied().unwrap_or(0))
+        .sum();
     score
 }
 
