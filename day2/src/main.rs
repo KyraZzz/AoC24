@@ -1,84 +1,79 @@
 use std::io::{BufRead, BufReader};
-fn part1() {
+
+fn report_is_valid(report: &Vec<u32>) -> bool {
+    if report.len() == 1 {
+        return true;
+    }
+    // check ascending or descending order
+    let is_ascending = report.windows(2).all(|w| w[0] <= w[1]);
+    let is_descending = report.windows(2).all(|w| w[0] >= w[1]);
+    if !is_ascending && !is_descending {
+        return false;
+    }
+
+    // check diff is within range [1,3]
+    let is_valid_range = report
+        .windows(2)
+        .map(|w| w[1] as i32 - w[0] as i32)
+        .all(|x| x.abs() >= 1 && x.abs() <= 3);
+
+    is_valid_range
+}
+
+fn part1() -> u32 {
     let f = std::fs::File::open("/Users/Kyra_ZHOU/24AoC/AoC24/day2/test/input.txt").unwrap();
     let r = BufReader::new(f);
-    let l = r
+
+    let res: usize = r
         .lines()
-        .map(|line| {
-            line.unwrap()
-                .split(" ")
-                .map(|s| s.parse::<i32>().unwrap())
-                .collect::<Vec<_>>()
+        .filter(|line| {
+            let report = line
+                .as_ref()
+                .unwrap()
+                .split_whitespace()
+                .map(|s| s.parse::<u32>().unwrap())
+                .collect::<Vec<_>>();
+            report_is_valid(&report)
         })
-        .collect::<Vec<_>>();
+        .count();
 
-    let mut res = 0;
-    for line in l {
-        let length = line.len();
-        if length == 1 {
-            res += 1;
-            continue;
-        }
-
-        let sign = if (line[1] - line[0]) > 0 { 1 } else { -1 };
-        let filtered = line
-            .windows(2)
-            .map(|w| w[1] - w[0])
-            .filter(|x| x * sign > 0)
-            .filter(|x| x.abs() >= 1 && x.abs() <= 3)
-            .collect::<Vec<_>>();
-        if filtered.len() == length - 1 {
-            res += 1;
-            continue;
-        }
-    }
-    println!("{}", res);
+    res as u32
 }
-fn is_valid(line: &Vec<i32>) -> bool {
-    let length = line.len();
-    if length == 1 {
+
+fn report_is_tolerable(report: &Vec<u32>) -> bool {
+    if report_is_valid(report) {
         return true;
     }
-
-    let sign = if (line[1] - line[0]) > 0 { 1 } else { -1 };
-    let filtered = line
-        .windows(2)
-        .map(|w| w[1] - w[0])
-        .filter(|x| x * sign > 0)
-        .filter(|x| x.abs() >= 1 && x.abs() <= 3)
-        .collect::<Vec<_>>();
-    if filtered.len() == length - 1 {
-        return true;
+    for i in 0..report.len() {
+        let report_copy = [&report[0..i], &report[i + 1..]].concat();
+        if report_is_valid(&report_copy) {
+            return true;
+        }
     }
     false
 }
-fn main() {
+
+fn part2() -> u32 {
     let f = std::fs::File::open("/Users/Kyra_ZHOU/24AoC/AoC24/day2/test/input.txt").unwrap();
     let r = BufReader::new(f);
-    let l = r
-        .lines()
-        .map(|line| {
-            line.unwrap()
-                .split(" ")
-                .map(|s| s.parse::<i32>().unwrap())
-                .collect::<Vec<_>>()
-        })
-        .collect::<Vec<_>>();
 
-    let mut res = 0;
-    for line in l {
-        if is_valid(&line) {
-            res += 1;
-        } else {
-            for i in 0..line.len() {
-                let mut new_copy = line.clone();
-                new_copy.remove(i);
-                if is_valid(&new_copy) {
-                    res += 1;
-                    break;
-                }
-            }
-        }
-    }
-    println!("{}", res);
+    let res: usize = r
+        .lines()
+        .filter(|line| {
+            let report = line
+                .as_ref()
+                .unwrap()
+                .split_whitespace()
+                .map(|s| s.parse::<u32>().unwrap())
+                .collect::<Vec<_>>();
+            report_is_tolerable(&report)
+        })
+        .count();
+
+    res as u32
+}
+
+fn main() {
+    println!("part1: {:?}", part1());
+    println!("part2: {:?}", part2());
 }
