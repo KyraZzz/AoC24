@@ -24,11 +24,11 @@ To achieve this, use `Regex::new(<PATTERN>)` to compile the regular expression `
 
 The Regex crate offers several methods for pattern searching in a haystack. Below are some key options:
 
-* `r.find_iter(haystack: &str) -> Matches`:
-  * Returns an iterator of successive non-overlapping matches (`Match`) for the pattern `r` within the haystack.
-  * A Match contains: (1) the start and end byte offsets of the match in the haystack; (2) the actual matching substring.
-  * Note: The returned byte offsets are crucial, as Regex works only with UTF-8 encoded strings. In UTF-8, characters can range from 1 to 4 bytes, so byte offsets always align with UTF-8 code-point boundaries.
-  * Finding `X` and `Y` within a Match object can be a bit tedious. For example, in the pattern `mul(X,Y)`, the sub-pattern `X,Y` starts at byte offset 4 (inclusive) and ends at byte offset `m.len() - 1` (exclusive).So let us take a look at another option `r.captures_iter()`.
+# `r.find_iter(haystack: &str) -> Matches`
+* Returns an iterator of successive non-overlapping matches (`Match`) for the pattern `r` within the haystack.
+* A Match contains: (1) the start and end byte offsets of the match in the haystack; (2) the actual matching substring.
+* Note: The returned byte offsets are crucial, as Regex works only with UTF-8 encoded strings. In UTF-8, characters can range from 1 to 4 bytes, so byte offsets always align with UTF-8 code-point boundaries.
+* Finding `X` and `Y` within a Match object can be a bit tedious. For example, in the pattern `mul(X,Y)`, the sub-pattern `X,Y` starts at byte offset 4 (inclusive) and ends at byte offset `m.len() - 1` (exclusive).So let us take a look at another option `r.captures_iter()`.
 
 ```rust
 fn part1() -> u32 {
@@ -46,12 +46,12 @@ fn part1() -> u32 {
 }
 ```
 
-* `r.captures_iter(haystack: &str) -> Captures`:
-  * Returns an iterator of successive non-overlapping captures (`Capture`) from the pattern r within the haystack.
-  * This method allows users to extract different parts or groups in the pattern easily, with the option to name groups for clarity. Each group is of type `Match` and can be accessed either by its index or its name (if specified in the pattern). 
-  * A group is defined using parentheses and can optionally be named. To name a group, use `(?<name>...)`, where `name` is the group name, followed by the regular expression for that group. For example, `(?<op1>[0-9]+)` defines a group named `op1`, which matches one or more digits `([0-9]+)`.
-  * Performance considerations: the `r.find()` method is faster and less resource-intensive. Use `r.captures_iter()` only when you need to access specific capture group matches within the pattern.
-  * Here are three possible implementations using `captures_iter()`:
+# `r.captures_iter(haystack: &str) -> Captures`
+* Returns an iterator of successive non-overlapping captures (`Capture`) from the pattern r within the haystack.
+* This method allows users to extract different parts or groups in the pattern easily, with the option to name groups for clarity. Each group is of type `Match` and can be accessed either by its index or its name (if specified in the pattern). 
+* A group is defined using parentheses and can optionally be named. To name a group, use `(?<name>...)`, where `name` is the group name, followed by the regular expression for that group. For example, `(?<op1>[0-9]+)` defines a group named `op1`, which matches one or more digits `([0-9]+)`.
+* Performance considerations: the `r.find()` method is faster and less resource-intensive. Use `r.captures_iter()` only when you need to access specific capture group matches within the pattern.
+* Here are three possible implementations using `captures_iter()`:
 
 ```rust
 // Method 1:
